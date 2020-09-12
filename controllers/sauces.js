@@ -93,6 +93,7 @@ exports.likeThing = (req, res, next) => {
                             $inc: {
                                 dislikes: -1
                             },
+                            // usdjldsnksdk
                             // "$set" ajoutera +1 au pouce du tableau
                             $pull: { usersDisliked: req.body.userId },
                             //_id: req.params.id
