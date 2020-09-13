@@ -74,47 +74,35 @@ exports.likeThing = (req, res, next) => {
                 .then((thing) => {
                     if (thing.usersLiked.includes(req.body.userId)) {
                         Thing.updateOne({ _id: req.params.id }, {
-                            // "$inc" incrémente une valeur positive
-                            $inc: {
-                                likes: -1
-                            },
-                            // "$set" ajoutera +1 au pouce du tableau
-                            $pull: { usersLiked: req.body.userId },
-                            //_id: req.params.id
+                                // "$inc" incrémente une valeur positive
+                                $inc: {
+                                    likes: -1
+                                },
+                                // "$set" ajoutera +1 au pouce du tableau
+                                $pull: { usersLiked: req.body.userId },
 
-                        })
-
-                        .then(() => res.status(201).json({ message: 'Aime a été enlevé!' }))
+                            })
+                            .then(() => res.status(201).json({ message: 'Aime a été enlevé!' }))
                             .catch(error => res.status(400).json({ error }));
                     }
                     if (thing.usersDisliked.includes(req.body.userId)) {
                         Thing.updateOne({ _id: req.params.id }, {
-                            // "$inc" incrémente une valeur positive
+                            // "$pull" incrémente une valeur positive
                             $inc: {
-                                dislikes: -1
+                                dislikes: 1
                             },
-                            // usdjldsnksdk
-                            // "$set" ajoutera +1 au pouce du tableau
+                            // "$pull" ajoutera +1 au pouce du tableau
                             $pull: { usersDisliked: req.body.userId },
-                            //_id: req.params.id
-
                         })
 
-                        .then(() => res.status(201).json({ message: 'Aime a été enlevé!' }))
+                        .then(() => res.status(201).json({ message: 'Aime pas a été enlevé!' }))
                             .catch(error => res.status(400).json({ error }));
                     }
 
 
                 })
                 .catch(error => res.status(404).json({ error }));
-
-
-
-
-
-
             break
-
             // Configuration du pouce like 
         case 1:
             Thing.updateOne({ _id: req.params.id }, {
