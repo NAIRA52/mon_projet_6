@@ -1,13 +1,13 @@
 // Importer "thing" du dossier models
-const Thing = require('../models/Thing');
+const Sauce = require('../models/Sauce');
 // Importer le package fs(systeme de fichiers)donne accès aux fonctions qui permet de modifier le système de fichiers,
 const fs = require('fs');
 // Gérer correctement la requête entrante
-exports.createThing = (req, res, next) => {
-    const thingObject = JSON.parse(req.body.sauce);
-    delete thingObject._id;
-    const thing = new Thing({
-        ...thingObject,
+exports.createSauce = (req, res, next) => {
+    const sauceObject = JSON.parse(req.body.sauce);
+    delete sauceObject._id;
+    const sauce = new Sauce({
+        ...sauceObject,
         // Afin de générer l'url de l'image
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
         likes: 0,
@@ -17,33 +17,33 @@ exports.createThing = (req, res, next) => {
 
     });
     //Enregistrement des données
-    thing.save()
+    sauce.save()
         .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
         .catch(error => res.status(400).json({ error }));
 };
 // Modification
-exports.modifyThing = (req, res, next) => {
-    const thingObject = req.file ?
+exports.modifySauce = (req, res, next) => {
+    const sauceObject = req.file ?
         // S'il existe , on récupére les informations
         {
             ...JSON.parse(req.body.sauce),
             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
         } : {...req.body }; // S'il n'existe pas, on prend juste le corps de la requête
     // "updateOne" permet de mettre à jour l'objet
-    Thing.updateOne({ _id: req.params.id }, {...thingObject, _id: req.params.id })
+    Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
         .then(() => res.status(200).json({ message: 'Objet modifié !' }))
         .catch(error => res.status(400).json({ error }));
 };
 // Supprimer
-exports.deleteThing = (req, res, next) => {
+exports.deleteSauce = (req, res, next) => {
     // Pour trouver l'objet à supprimer
-    Thing.findOne({ _id: req.params.id })
-        .then(thing => {
-            const filename = thing.imageUrl.split('/images/')[1];
+    Sauce.findOne({ _id: req.params.id })
+        .then(sauce => {
+            const filename = sauce.imageUrl.split('/images/')[1];
             // Pour supprimer le fichier
             fs.unlink(`images/${filename}`, () => {
 
-                Thing.deleteOne({ _id: req.params.id })
+                Sauce.deleteOne({ _id: req.params.id })
                     .then(() => res.status(200).json({ message: 'Objet supprimé !' }))
                     .catch(error => res.status(400).json({ error }));
             });
@@ -51,28 +51,28 @@ exports.deleteThing = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
 };
 // Récupérer un seul objet
-exports.getOneThing = (req, res, next) => {
-    Thing.findOne({ _id: req.params.id })
-        .then(thing => res.status(200).json(thing))
+exports.getOneSauce = (req, res, next) => {
+    Sauce.findOne({ _id: req.params.id })
+        .then(sauce => res.status(200).json(sauce))
         .catch(error => res.status(404).json({ error }));
 
 };
 // Récupérer tout les objets
-exports.getAllThings = (req, res, next) => {
+exports.getAllSauces = (req, res, next) => {
     //Récupération de la liste des Things
-    Thing.find()
-        .then(things => res.status(200).json(things))
+    Sauce.find()
+        .then(sauces => res.status(200).json(sauces))
         .catch(error => res.status(400).json({ error }));
 };
 // Gérer les pouce likes et dislikes
-exports.likeThing = (req, res, next) => {
+exports.likeSauce = (req, res, next) => {
     // "switch" évalue une expression et l'exécute
     switch (req.body.like) {
         case 0:
-            Thing.findOne({ _id: req.params.id })
-                .then((thing) => {
-                    if (thing.usersLiked.includes(req.body.userId)) {
-                        Thing.updateOne({ _id: req.params.id }, {
+            Sauce.findOne({ _id: req.params.id })
+                .then((sauce) => {
+                    if (sauce.usersLiked.includes(req.body.userId)) {
+                        Sauce.updateOne({ _id: req.params.id }, {
                                 $inc: {
                                     likes: -1
                                 },
@@ -82,10 +82,10 @@ exports.likeThing = (req, res, next) => {
                             .then(() => res.status(201).json({ message: 'Aime a été enlevé!' }))
                             .catch(error => res.status(400).json({ error }));
                     }
-                    if (thing.usersDisliked.includes(req.body.userId)) {
-                        Thing.updateOne({ _id: req.params.id }, {
+                    if (sauce.usersDisliked.includes(req.body.userId)) {
+                        Sauce.updateOne({ _id: req.params.id }, {
                                 $inc: {
-                                    dislikes: 1
+                                    dislikes: -1
                                 },
                                 $pull: { usersDisliked: req.body.userId },
                             })
@@ -97,7 +97,7 @@ exports.likeThing = (req, res, next) => {
             break
             // Configuration du pouce like 
         case 1:
-            Thing.updateOne({ _id: req.params.id }, {
+            Sauce.updateOne({ _id: req.params.id }, {
                     // "$inc" incrémente une valeur positive
                     $inc: {
                         likes: 1
@@ -110,10 +110,10 @@ exports.likeThing = (req, res, next) => {
             break
             // Configuration du pouce dislike
         case -1:
-            Thing.updateOne({ _id: req.params.id }, {
+            Sauce.updateOne({ _id: req.params.id }, {
                     // "$inc" incrémente une valeur négative
                     $inc: {
-                        dislikes: -1
+                        dislikes: 1
                     },
                     // "$push" ajoutera -1 au pouce du tableau
                     $push: { usersDisliked: req.body.userId },
