@@ -1,10 +1,10 @@
-// middleware d'authentification
+// Importer le middleware d'authentification
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
     // S'il y a des problémes que celle-ci soit gérer à l'interieur de try et catch
     try {
-        // Récupération des informations apres le header grâce aà "split"
+        // Récupération des informations apres le header grâce à "split"
         const token = req.headers.authorization.split(' ')[1];
         // Décoder le token grêce à "verify"
         const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');

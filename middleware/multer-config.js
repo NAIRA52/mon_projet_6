@@ -6,7 +6,7 @@ const MIME_TYPES = {
     'image/jpeg': 'jpg',
     'image/png': 'png'
 };
-// Creation objet de configuration
+// Creation d'objet de configuration qui indique que cela soit enregistrer dans le disque
 const storage = multer.diskStorage({
     // Enregistre les fichiers dans dossier images
     destination: (req, file, callback) => {
@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
     },
     // Indique quel fichier utiliser
     filename: (req, file, callback) => {
-        // Créer le nom en utlisant le fichier d'origine, on remplace les espaces par des underscores grâce à "split"
+        // Créer le nom en utilisant le fichier d'origine, on remplace les espaces par des underscores grâce à "split"
         const name = file.originalname.split(' ').join('_');
         // Création de l'extension MIME_TYPES
         const extension = MIME_TYPES[file.mimetype];
@@ -22,5 +22,5 @@ const storage = multer.diskStorage({
         callback(null, name + Date.now() + '.' + extension);
     }
 });
-// On exporte l'élément multer configuré en passant la constante storage et gérer juste les fichiers images
+// On exporte l'élément multer configuré en passant l'objet storage et qu'il s'agit d'un fichier image unique
 module.exports = multer({ storage: storage }).single('image');

@@ -1,6 +1,7 @@
+// Importer "thing" du dossier models
 const Thing = require('../models/Thing');
+// Importer le package fs(systeme de fichiers)donne accès aux fonctions qui permet de modifier le système de fichiers,
 const fs = require('fs');
-const { findOne } = require('../models/Thing');
 // Gérer correctement la requête entrante
 exports.createThing = (req, res, next) => {
     const thingObject = JSON.parse(req.body.sauce);
@@ -19,7 +20,6 @@ exports.createThing = (req, res, next) => {
     thing.save()
         .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
         .catch(error => res.status(400).json({ error }));
-
 };
 // Modification
 exports.modifyThing = (req, res, next) => {
@@ -28,8 +28,8 @@ exports.modifyThing = (req, res, next) => {
         {
             ...JSON.parse(req.body.sauce),
             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-        } : {...req.body }; // S'il n'existe pas, on prend juste le coprs de la requête
-
+        } : {...req.body }; // S'il n'existe pas, on prend juste le corps de la requête
+    // "updateOne" permet de mettre à jour l'objet
     Thing.updateOne({ _id: req.params.id }, {...thingObject, _id: req.params.id })
         .then(() => res.status(200).json({ message: 'Objet modifié !' }))
         .catch(error => res.status(400).json({ error }));
@@ -63,7 +63,6 @@ exports.getAllThings = (req, res, next) => {
     Thing.find()
         .then(things => res.status(200).json(things))
         .catch(error => res.status(400).json({ error }));
-
 };
 // Gérer les pouce likes et dislikes
 exports.likeThing = (req, res, next) => {
@@ -74,11 +73,9 @@ exports.likeThing = (req, res, next) => {
                 .then((thing) => {
                     if (thing.usersLiked.includes(req.body.userId)) {
                         Thing.updateOne({ _id: req.params.id }, {
-                                // "$inc" incrémente une valeur positive
                                 $inc: {
                                     likes: -1
                                 },
-                                // "$set" ajoutera +1 au pouce du tableau
                                 $pull: { usersLiked: req.body.userId },
 
                             })
@@ -87,19 +84,14 @@ exports.likeThing = (req, res, next) => {
                     }
                     if (thing.usersDisliked.includes(req.body.userId)) {
                         Thing.updateOne({ _id: req.params.id }, {
-                            // "$pull" incrémente une valeur positive
-                            $inc: {
-                                dislikes: 1
-                            },
-                            // "$pull" ajoutera +1 au pouce du tableau
-                            $pull: { usersDisliked: req.body.userId },
-                        })
-
-                        .then(() => res.status(201).json({ message: 'Aime pas a été enlevé!' }))
+                                $inc: {
+                                    dislikes: 1
+                                },
+                                $pull: { usersDisliked: req.body.userId },
+                            })
+                            .then(() => res.status(201).json({ message: 'Aime pas a été enlevé!' }))
                             .catch(error => res.status(400).json({ error }));
                     }
-
-
                 })
                 .catch(error => res.status(404).json({ error }));
             break
@@ -110,9 +102,8 @@ exports.likeThing = (req, res, next) => {
                     $inc: {
                         likes: 1
                     },
-                    // "$set" ajoutera +1 au pouce du tableau
+                    // "$push" ajoutera +1 au pouce du tableau
                     $push: { usersLiked: req.body.userId },
-                    //_id: req.params.id
                 })
                 .then(() => res.status(201).json({ message: 'Aime a été pris en compte!' }))
                 .catch(error => res.status(400).json({ error }));
@@ -124,9 +115,8 @@ exports.likeThing = (req, res, next) => {
                     $inc: {
                         dislikes: -1
                     },
-                    // "$set" ajoutera -1 au pouce du tableau
+                    // "$push" ajoutera -1 au pouce du tableau
                     $push: { usersDisliked: req.body.userId },
-                    // id: req.params.id
                 })
                 .then(() => res.status(201).json({ message: 'Aime pas a été pris en compte!' }))
                 .catch(error => res.status(400).json({ error }));

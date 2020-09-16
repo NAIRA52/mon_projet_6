@@ -1,4 +1,4 @@
-// Créer un serveur Node
+// Créer un serveur Node en important notre package ('http')
 const http = require('http');
 // Importer notre application 
 const app = require('./app');
@@ -16,7 +16,7 @@ const normalizePort = val => {
 };
 const port = normalizePort(process.env.PORT ||  '3000');
 app.set('port', port);
-// recherche les différentes erreurs et les gère de manière appropriée. 
+// La fonction recherche les différentes erreurs et les gère de manière appropriée. 
 const errorHandler = error => {
     if (error.syscall !== 'listen') {
         throw error;
@@ -40,6 +40,7 @@ const errorHandler = error => {
 const server = http.createServer(app);
 
 server.on('error', errorHandler);
+// l'écouteur d'évenement
 server.on('listening', () => {
     const address = server.address();
     const bind = typeof address === 'string' ? 'pipe ' + address : 'port ' + port;
